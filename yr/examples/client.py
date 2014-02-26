@@ -5,7 +5,7 @@ parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pa
 sys.path.append(parent_directory)
 from libyr import Yr
 
-weather = Yr('Norge/Telemark/Skien/Skien')
-#weather = Yr('Czech_Republic/Prague/Prague')
+#weather = Yr('Norge/Telemark/Skien/Skien')
+weather = Yr('Czech_Republic/Prague/Prague')
 
 print(weather.now(as_json=True))

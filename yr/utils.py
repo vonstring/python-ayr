@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-import os.path, sys, json, hashlib, requests, tempfile, datetime
+import os.path, sys, json, tempfile, datetime
+#import hashlib
+#import requests
+import urllib.request
 
 class Language:
 
@@ -30,7 +33,10 @@ class Location:
         return result
 
     def get_hash(self):
+        '''
         result = hashlib.sha256(self.location_name.encode('utf-8')).hexdigest()[:12]
+        '''
+        result = self.location_name.replace('/', '-')
         return result
 
 class Connect:
@@ -41,10 +47,20 @@ class Connect:
     def read(self):
         cache = Cache(self.location, 'forecast')
         if not cache.exists() or not cache.is_fresh():
+            '''
             yr = requests.get(self.location.url)
             if not yr.status_code == requests.codes.ok:
                 yr.raise_for_status()
             cache.write(yr.text) #.encode('utf-8') $$bug$$ ~> create empty forecast file in my /tmp/
+            '''
+            who = 'urllib.request'
+            response = urllib.request.urlopen(self.location.url)
+            content = response.read()
+            if response.status != 200:
+                sys.stderr.write('{} error: {}\n'.format(who, response.status))
+                sys.exit(1)
+            xml = content.decode('utf-8')
+            cache.write(xml)
         data = cache.read()
         return data
 
