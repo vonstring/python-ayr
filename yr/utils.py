@@ -1,91 +1,108 @@
 #!/usr/bin/env python3
-import os.path, sys, json, tempfile, datetime
-#import hashlib
-#import requests
-import urllib.request
 
-class Language:
+import os.path
+import json # Language
+import tempfile # Cache
+import datetime # Cache
+import urllib.request # Connect
+import sys
 
-    def __init__(self, language):
-        self.language = language
+class YrObject: encoding = 'utf-8'
+
+class YrException(YrObject):
+
+    def __init__(self, error_message):
+        sys.stderr.write('python-yr: {error_message}\n'.format(error_message=error_message))
+        sys.exit(1)
+
+class Language(YrObject):
+
+    script_directory = os.path.dirname(os.path.abspath(__file__)) # directory of the script
+    directory = 'languages'
+
+    def __init__(self, language_name='en'):
+        self.language_name = language_name
+        self.filename = os.path.join(
+            self.script_directory,
+            self.directory,
+            '{root}.{ext}'.format(root=self.language_name, ext='json') # basename of filename
+        )
+        self.dictionary = self.get_dictionary()
 
     def get_dictionary(self):
-        path = os.path.abspath(os.path.dirname(__file__))
-        filename = '{}/languages/{}.json'.format(path, self.language)
-        if os.path.exists(filename):
-            with open(filename, mode='r', encoding='utf-8') as f:
+        if os.path.exists(self.filename):
+            with open(self.filename, mode='r', encoding=self.encoding) as f:
                 return json.load(f)
         else:
-            sys.stderr.write('error: unsupported language ~> {}\n'.format(self.language))
-            sys.exit(1)
+            YrException('unavailable language ~> {language_name}'.format(language_name=self.language_name))
 
-class Location:
+class Location(YrObject):
 
-    def __init__(self, location_name, language):
+    def __init__(self, location_name, language_name='en'):
         self.location_name = location_name
-        self.language = language
-        self._ = Language(self.language).get_dictionary()
+        self.language_name = language_name
         self.url = self.get_url()
         self.hash = self.get_hash()
 
     def get_url(self):
-        result = 'http://www.yr.no/{place}/{location_name}/{forecast}.xml'.format(location_name=self.location_name, **self._)
-        return result
+        language = Language(self.language_name)
+        url = 'http://www.yr.no/{place}/{location_name}/{forecast}.xml'.format(
+            location_name = self.location_name,
+            **language.dictionary # **language.dictionary contain ~> place + forecast
+        )
+        return url
 
     def get_hash(self):
-        '''
-        result = hashlib.sha256(self.location_name.encode('utf-8')).hexdigest()[:12]
-        '''
-        result = self.location_name.replace('/', '-')
-        return result
+        return self.location_name.replace('/', '-')
 
-class Connect:
+class Connect(YrObject):
 
-    def __init__(self, location):
-        self.location = location
+    extension = 'weatherdata.xml'
+
+    def __init__(self, location_name, language_name='en'):
+        self.location_name = location_name
+        self.language_name = language_name
 
     def read(self):
-        cache = Cache(self.location, 'forecast')
+        location = Location(self.location_name, self.language_name)
+        cache = Cache(location, self.extension)
         if not cache.exists() or not cache.is_fresh():
-            '''
-            yr = requests.get(self.location.url)
-            if not yr.status_code == requests.codes.ok:
-                yr.raise_for_status()
-            cache.write(yr.text) #.encode('utf-8') $$bug$$ ~> create empty forecast file in my /tmp/
-            '''
-            who = 'urllib.request'
-            response = urllib.request.urlopen(self.location.url)
-            content = response.read()
+            response = urllib.request.urlopen(location.url)
             if response.status != 200:
-                sys.stderr.write('{} error: {}\n'.format(who, response.status))
-                sys.exit(1)
-            xml = content.decode('utf-8')
-            cache.write(xml)
-        data = cache.read()
-        return data
+                YrException('unavailable url ~> {url}'.format(url=location.url))
+            weatherdata = response.read().decode(self.encoding)
+            cache.dump(weatherdata)
+        else:
+            weatherdata = cache.load()
+        return weatherdata
 
-class Cache:
+class Cache(YrObject):
 
-    cache_timeout = 30 # cache timeout in minutes
+    directory = tempfile.gettempdir()
+    timeout = 30 # cache timeout in minutes
 
     def __init__(self, location, what):
-        self.location = location
-        self.cache_filename = '{}/{}.{}'.format(tempfile.gettempdir(), self.location.hash, what)
+        self.filename = os.path.join(
+            self.directory,
+            '{root}.{ext}'.format(root=location.hash, ext=what) # basename of filename
+        )
 
-    def write(self, data):
-        with open(self.cache_filename, mode='w', encoding='utf-8') as f:
+    def dump(self, data):
+        with open(self.filename, mode='w', encoding=self.encoding) as f:
             f.write(data)
 
     def is_fresh(self):
-        modified = datetime.datetime.fromtimestamp(os.path.getmtime(self.cache_filename))
-        result = datetime.datetime.now() - modified <= datetime.timedelta(minutes=self.cache_timeout)
-        return result
+        mtime = datetime.datetime.fromtimestamp(os.path.getmtime(self.filename))
+        now = datetime.datetime.now()
+        timeout = datetime.timedelta(minutes=self.timeout)
+        return mtime - now <= timeout
 
     def exists(self):
-        result = os.path.isfile(self.cache_filename)
-        return result
+        return os.path.isfile(self.filename)
 
-    def read(self):
-        with open(self.cache_filename, mode='r', encoding='utf-8') as f:
-            data = f.read()
-            return data
+    def load(self):
+        with open(self.filename, mode='r', encoding=self.encoding) as f:
+            return f.read()
+
+if __name__ == '__main__':
+    print(Connect('Czech_Republic/Prague/Prague').read())
