@@ -12,7 +12,7 @@ weather = Yr('Norge/Telemark/Skien/Skien')
 now_json = weather.now(as_json=True)
 # now = weather.now() # returns a dict
 
-print now_json
+print(now_json)
 ```
 
 ### This returns

@@ -17,5 +17,5 @@ setup(name='python-yr',
       ],
       packages=['yr'],
       package_data={'yr': ['languages/*.json']},
-      install_requires=['requests', 'xmltodict', 'beautifulsoup4'],
+      install_requires=['xmltodict'],
      )
