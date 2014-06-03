@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import sys
 import os.path
 import json # Language
 import tempfile # Cache
 import datetime # Cache
 import urllib.request # Connect
-import sys
 
 class YrObject: encoding = 'utf-8'
 
@@ -38,17 +38,16 @@ class Language(YrObject):
 
 class Location(YrObject):
 
-    def __init__(self, location_name, language_name='en'):
+    def __init__(self, location_name, language=Language()):
         self.location_name = location_name
-        self.language_name = language_name
+        self.language = language
         self.url = self.get_url()
         self.hash = self.get_hash()
 
     def get_url(self):
-        language = Language(self.language_name)
         url = 'http://www.yr.no/{place}/{location_name}/{forecast}.xml'.format(
             location_name = self.location_name,
-            **language.dictionary # **language.dictionary contain ~> place + forecast
+            **self.language.dictionary # **self.language.dictionary contain ~> place + forecast
         )
         return url
 
@@ -57,19 +56,15 @@ class Location(YrObject):
 
 class Connect(YrObject):
 
-    extension = 'weatherdata.xml'
-
-    def __init__(self, location_name, language_name='en'):
-        self.location_name = location_name
-        self.language_name = language_name
+    def __init__(self, location):
+        self.location = location
 
     def read(self):
-        location = Location(self.location_name, self.language_name)
-        cache = Cache(location, self.extension)
+        cache = Cache(self.location)
         if not cache.exists() or not cache.is_fresh():
-            response = urllib.request.urlopen(location.url)
+            response = urllib.request.urlopen(self.location.url)
             if response.status != 200:
-                YrException('unavailable url ~> {url}'.format(url=location.url))
+                YrException('unavailable url ~> {url}'.format(url=self.location.url))
             weatherdata = response.read().decode(self.encoding)
             cache.dump(weatherdata)
         else:
@@ -79,12 +74,14 @@ class Connect(YrObject):
 class Cache(YrObject):
 
     directory = tempfile.gettempdir()
+    extension = 'weatherdata.xml'
     timeout = 30 # cache timeout in minutes
 
-    def __init__(self, location, what):
+    def __init__(self, location):
+        self.location = location
         self.filename = os.path.join(
             self.directory,
-            '{root}.{ext}'.format(root=location.hash, ext=what) # basename of filename
+            '{root}.{ext}'.format(root=self.location.hash, ext=self.extension) # basename of filename
         )
 
     def dump(self, data):
@@ -105,4 +102,4 @@ class Cache(YrObject):
             return f.read()
 
 if __name__ == '__main__':
-    print(Connect('Czech_Republic/Prague/Prague').read())
+    print(Connect(Location('Czech_Republic/Prague/Prague')).read())
