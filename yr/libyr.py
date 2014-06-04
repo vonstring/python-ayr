@@ -22,12 +22,12 @@ class Yr:
         else:
             return dictionary
 
-    def forecast(self, as_json):
+    def forecast(self, as_json=False):
         times = self.dictionary['weatherdata']['forecast']['tabular']['time']
         for time in times:
             yield self.dict2result({'time': time}, as_json)
 
-    def now(self, as_json):
+    def now(self, as_json=False):
         return next(self.forecast(as_json))
 
     def __init__(self, location_name, language_name='en'):
