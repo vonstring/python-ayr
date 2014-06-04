@@ -7,8 +7,8 @@ from yr.utils import Connect, Location, Language, YrException
 
 class Yr:
 
-    def dict2json(self, dictionary):
-        return json.dumps(dictionary, indent=4)
+    def py2json(self, python):
+        return json.dumps(python, indent=4)
 
     def xml2dict(self, xml):
         return xmltodict.parse(xml)
@@ -16,16 +16,16 @@ class Yr:
     def dict2xml(self, dictionary):
         return xmltodict.unparse(dictionary, pretty=True)
 
-    def dict2result(self, dictionary, as_json=False): # default is return result as dictionary ;)
+    def py2result(self, python, as_json=False): # default is return result as dictionary ;)
         if as_json:
-            return self.dict2json(dictionary)
+            return self.py2json(python)
         else:
-            return dictionary
+            return python
 
     def forecast(self, as_json=False):
         times = self.dictionary['weatherdata']['forecast']['tabular']['time']
         for time in times:
-            yield self.dict2result({'time': time}, as_json)
+            yield self.py2result(time, as_json)
 
     def now(self, as_json=False):
         return next(self.forecast(as_json))

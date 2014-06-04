@@ -18,37 +18,36 @@ print(now_json)
 ### This returns
 ```json
 {
-    "time": {
-        "@from": "2014-02-08T21:00:00", 
-        "@period": "3", 
-        "@to": "2014-02-09T00:00:00", 
-        "symbol": {
-            "@name": "Rain", 
-            "@number": "9", 
-            "@var": "09"
-        }, 
-        "precipitation": {
-            "@maxvalue": "6.2", 
-            "@minvalue": "3.0", 
-            "@value": "4.6"
-        }, 
-        "winddirection": {
-            "@code": "SSE", 
-            "@deg": "148.4", 
-            "@name": "South-southeast"
-        }, 
-        "windspeed": {
-            "@mps": "6.6", 
-            "@name": "Moderate breeze"
-        }, 
-        "temperature": {
-            "@unit": "celsius", 
-            "@value": "3"
-        }, 
-        "pressure": {
-            "@unit": "hPa", 
-            "@value": "983.0"
-        }
+    "@from": "2014-06-04T08:00:00", 
+    "@to": "2014-06-04T12:00:00", 
+    "@period": "1", 
+    "symbol": {
+        "@number": "3", 
+        "@numberEx": "3", 
+        "@name": "Partly cloudy", 
+        "@var": "03d"
+    }, 
+    "precipitation": {
+        "@value": "0", 
+        "@minvalue": "0", 
+        "@maxvalue": "0.1"
+    }, 
+    "windDirection": {
+        "@deg": "159.4", 
+        "@code": "SSE", 
+        "@name": "South-southeast"
+    }, 
+    "windSpeed": {
+        "@mps": "1.3", 
+        "@name": "Light air"
+    }, 
+    "temperature": {
+        "@unit": "celsius", 
+        "@value": "13"
+    }, 
+    "pressure": {
+        "@unit": "hPa", 
+        "@value": "1012.1"
     }
 }
 ```
