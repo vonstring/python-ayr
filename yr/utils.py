@@ -6,6 +6,7 @@ import json # Language
 import tempfile # Cache
 import datetime # Cache
 import urllib.request # Connect
+import urllib.parse # Location
 
 class YrObject: encoding = 'utf-8'
 
@@ -46,7 +47,7 @@ class Location(YrObject):
 
     def get_url(self):
         url = 'http://www.yr.no/{place}/{location_name}/{forecast}.xml'.format(
-            location_name = self.location_name,
+            location_name = urllib.parse.quote(self.location_name),
             **self.language.dictionary # **self.language.dictionary contain ~> place + forecast
         )
         return url
