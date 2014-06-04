@@ -34,5 +34,4 @@ nosetests.xml
 .project
 .pydevproject
 
-*.bak
-verda.txt
+verda.*
