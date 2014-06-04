@@ -7,26 +7,25 @@ from yr.utils import Connect, Location, Language, YrException
 
 class Yr:
 
-    def xmltojson(self, xml):
-        return json.dumps(self.xmltodict(xml), indent=4)
+    def dict2json(self, dictionary):
+        return json.dumps(dictionary, indent=4)
 
-    def xmltodict(self, xml):
+    def xml2dict(self, xml):
         return xmltodict.parse(xml)
 
-    def dicttoxml(self, dictionary):
+    def dict2xml(self, dictionary):
         return xmltodict.unparse(dictionary, pretty=True)
 
-    def result(self, xml, as_json=False): # default is return result as dictionary ;)
+    def dict2result(self, dictionary, as_json=False): # default is return result as dictionary ;)
         if as_json:
-            return self.xmltojson(xml)
+            return self.dict2json(dictionary)
         else:
-            return self.xmltodict(xml)
+            return dictionary
 
     def forecast(self, as_json):
         times = self.dictionary['weatherdata']['forecast']['tabular']['time']
         for time in times:
-            xml = self.dicttoxml({'time': time})
-            yield self.result(xml, as_json)
+            yield self.dict2result({'time': time}, as_json)
 
     def now(self, as_json):
         return next(self.forecast(as_json))
@@ -38,7 +37,7 @@ class Yr:
         self.location = Location(self.location_name, self.language)
         self.connect = Connect(self.location)
         self.xml_source = self.connect.read()
-        self.dictionary = self.xmltodict(self.xml_source)
+        self.dictionary = self.xml2dict(self.xml_source)
         self.credit = {
             'text': self.language.dictionary['credit'],
             'url': 'http://www.yr.no/'
