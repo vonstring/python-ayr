@@ -63,7 +63,10 @@ class Connect(YrObject):
     def read(self):
         cache = Cache(self.location)
         if not cache.exists() or not cache.is_fresh():
-            response = urllib.request.urlopen(self.location.url)
+            try:
+                response = urllib.request.urlopen(self.location.url)
+            except:
+                YrException('unavailable url ~> {url}'.format(url=self.location.url))
             if response.status != 200:
                 YrException('unavailable url ~> {url}'.format(url=self.location.url))
             weatherdata = response.read().decode(self.encoding)
