@@ -9,13 +9,12 @@ Pull requests are very welcomed! :-)
 from yr.libyr import Yr
 
 weather = Yr('Norge/Telemark/Skien/Skien')
-now_json = weather.now(as_json=True)
-# now = weather.now() # returns a dict
+now = weather.now(as_json=True)
 
-print(now_json)
+print(now)
 ```
 
-### This returns
+##### This returns
 ```json
 {
     "@from": "2014-06-04T08:00:00", 
@@ -51,5 +50,7 @@ print(now_json)
     }
 }
 ```
+
+For more usage examples visit folder [examples](/yr/examples) or project [wiki](https://github.com/wckd/python-yr/wiki)
 
 More to come!
