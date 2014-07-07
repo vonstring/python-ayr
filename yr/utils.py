@@ -52,6 +52,35 @@ class Location(YrObject):
     def get_hash(self):
         return self.location_name.replace('/', '-')
 
+
+class LocationXYZ(YrObject):
+    """Class to use the API of yr.no"""
+    def __init__(self, x, y, z=0, language=Language()):
+        """
+
+        :param double x: longitude coordinate
+        :param double y: latitude coordinate
+        :param double z: altitude (meters above sea level)
+        :param language: a Language object
+        """
+        self.x = x
+        self.y = y
+        self.z = z
+        self.language = language
+        self.url = self.get_url()
+        self.hash = self.get_hash()
+
+    def get_url(self):
+        """Return the url of API service"""
+        url = "http://api.yr.no/weatherapi/locationforecast/1.9/?lat={y};" \
+              "lon={x};msl={z}".format(x=self.x, y=self.y, z=self.z)
+        return url
+
+    def get_hash(self):
+        """Create an hash with the three coordinates"""
+        return "location_{x}_{y}_{z}".format(x=self.x, y=self.y, z=self.z)
+
+
 class Connect(YrObject):
 
     def __init__(self, location):

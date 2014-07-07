@@ -3,7 +3,7 @@
 import sys
 import json
 import xmltodict # <~ the only external dependency
-from yr.utils import Connect, Location, Language, YrException
+from yr.utils import Connect, Location, LocationXYZ, Language, YrException
 
 class Yr:
 
@@ -23,18 +23,28 @@ class Yr:
             return python
 
     def forecast(self, as_json=False):
-        times = self.dictionary['weatherdata']['forecast']['tabular']['time']
+        if self.xyz:
+            times = self.dictionary['weatherdata']['product']['time']
+        else:
+            times = self.dictionary['weatherdata']['forecast']['tabular']['time']
         for time in times:
             yield self.py2result(time, as_json)
 
     def now(self, as_json=False):
         return next(self.forecast(as_json))
 
-    def __init__(self, location_name, language_name='en'):
-        self.location_name = location_name
+    def __init__(self, location_name=None, xyz=None, language_name='en'):
         self.language_name = language_name
         self.language = Language(self.language_name)
-        self.location = Location(self.location_name, self.language)
+        if location_name:
+            self.xyz = False
+            self.location_name = location_name
+            self.location = Location(self.location_name, self.language)
+        elif xyz:
+            self.xyz = True
+            self.location = LocationXYZ(xyz[0], xyz[1], xyz[2])
+        else:
+            return YrException("location_name or xyz parameter ha to be set")
         self.connect = Connect(self.location)
         self.xml_source = self.connect.read()
         self.dictionary = self.xml2dict(self.xml_source)
