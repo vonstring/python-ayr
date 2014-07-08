@@ -2,13 +2,9 @@
 
 from yr.libyr import Yr
 
-#location for Italy/Trentino_and_South-Tirol/San_Michele_all'Adige
-
 weather = Yr(location_name="Italy/Trentino_and_South-Tirol/San_Michele_all'Adige")
+#weather = Yr(location_xyz=(11.13358, 46.19291, 210)) # xyz for Italy/Trentino_and_South-Tirol/San_Michele_all'Adige
 
-#print to stdout all values
-weather.py2csv(None)
-
-print("\n")
-#print to stdout daily values
-weather.py2csv(None, True)
+weather.py2csv() # print to stdout all values
+print()
+weather.py2csv(daily=True) # print to stdout daily values
