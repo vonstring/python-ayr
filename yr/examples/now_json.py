@@ -2,7 +2,7 @@
 
 from yr.libyr import Yr
 
-weather = Yr('Norge/Telemark/Skien/Skien')
+weather = Yr(location_name='Norge/Telemark/Skien/Skien')
 now = weather.now(as_json=True)
 
 print(now)
