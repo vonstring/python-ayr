@@ -132,7 +132,6 @@ class Cache(YrObject):
         with open(self.filename, mode='r', encoding=self.encoding) as f:
             return f.read()
 
-
 class YrCSV:
 
     def __init__(self, forecast, parameters=['precipitation', 'windDirection',

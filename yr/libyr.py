@@ -16,7 +16,7 @@ class Yr:
     def dict2xml(self, dictionary):
         return xmltodict.unparse(dictionary, pretty=True)
 
-    def py2csv(self, outputfile, daily=False, stats=['min', 'max', 'avg'],
+    def py2csv(self, outputfile=None, daily=False, stats=['min', 'max', 'avg'],
                interval=[0, 6], parameters=['precipitation', 'windDirection',
                                             'windSpeed', 'temperature',
                                             'pressure']):
