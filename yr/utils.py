@@ -7,6 +7,7 @@ import tempfile # Cache
 import datetime # Cache
 import urllib.request # Connect
 import urllib.parse # Location
+import re
 
 class YrObject: encoding = 'utf-8'
 
@@ -130,6 +131,203 @@ class Cache(YrObject):
     def load(self):
         with open(self.filename, mode='r', encoding=self.encoding) as f:
             return f.read()
+
+
+class YrCSV:
+
+    def __init__(self, forecast, parameters=['precipitation', 'windDirection',
+                                             'windSpeed', 'temperature',
+                                             'pressure'],
+                 stats=['min', 'max', 'avg'], interval=[0, 6]):
+        """YrCSV class to write CSV file for data returned by yr.no services
+
+        :param dict forecast: the dictionary with values returner by yr.no
+                              services, from function Yr.forecast of libyr.py
+        :param list stats: a list with statistical value to calculate, admited
+                           values are: 'min', 'max', 'avg'
+        :param list interval: list of forecast interval to use, 0 has be set
+                              everytime as first element, other options are:
+                              3 for the three hours precipitation forecast,
+                              6 for the six hours precipitation forecast
+        :param list parameters: list of parameters to save in the CSV file.....
+        """
+        self.dictionary = forecast
+        self.parameters = parameters
+        self.accepted_interval = interval
+        self.statistics = stats
+
+    def _str2time(self, value):
+        """Return datetime object from string
+
+        :param str value: The string of datetime in the format
+        """
+        return datetime.datetime(*map(int, re.split('[^\d]', value)[:-1]))
+
+    def _check_diff_time(self, record):
+        """Return the interval between two observations
+
+        :param dict record: the dictionary containing the values of a forecast
+                            record
+        """
+        delta = self._str2time(record['@to']) - self._str2time(record['@from'])
+        return delta.total_seconds() // 3600
+
+    def _empty_dict(self):
+        """Return a dictionary with parameters"""
+        values = {}
+        for p in self.parameters:
+            values[p] = []
+        return values
+
+    def _mean(self, vals):
+        """Calculate mean value of a list
+
+        :param list vals: a list of values to calculate mean
+        """
+        return sum(vals) / len(vals)
+
+    def _fill_dict(self, record):
+        """Fill the dictionary with values of one record
+
+        :param dict record: the dictionary containing the values of a forecast
+                            record
+        """
+        for p in self.parameters:
+            if p in record.keys():
+                if '@value' in record[p].keys():
+                    self.values[p].append(float(record[p]['@value']))
+                elif '@percent' in record[p].keys():
+                    self.values[p].append(float(record[p]['@percent']))
+                elif '@deg' in record[p].keys():
+                    self.values[p].append(float(record[p]['@deg']))
+                elif '@mps' in record[p].keys():
+                    self.values[p].append(float(record[p]['@mps']))
+
+    def _fill_list(self, record):
+        """Fill the list with values of one record
+
+        :param dict record: the dictionary containing the values of a forecast
+                            record
+        """
+        for p in self.parameters:
+            if p in record.keys():
+                if '@value' in record[p].keys():
+                    self.values.append(record[p]['@value'])
+                elif '@percent' in record[p].keys():
+                    self.values.append(record[p]['@percent'])
+                elif '@deg' in record[p].keys():
+                    self.values.append(record[p]['@deg'])
+                elif '@mps' in record[p].keys():
+                    self.values.append(record[p]['@mps'])
+            else:
+                self.values.append('0')
+
+    def _create_header(self, stats=False):
+        """Create the header of CSV file with the name of parameter, the date
+        is insert later because the header is used to query data"""
+        header = []
+        if stats:
+            for p in self.parameters:
+                if p != 'precipitation':
+                    for s in self.statistics:
+                        header.append("{par}_{stat}".format(par=p, stat=s))
+                else:
+                    header.append(p)
+        else:
+            header = self.parameters
+        return header
+
+    def _write_dict(self, record, header):
+        """Add the value to the list to write in the CSV file according the
+        header
+
+        :param dict record: the dictionary containing the values of a forecast
+                            record
+        :param list header: a list the the values of header to keep the useful
+                            data
+        """
+        values = []
+        for h in header:
+            if h != 'precipitation':
+                p, s = h.split('_')
+                if s == 'min':
+                    values.append(str(min(record[p])))
+                elif s == 'max':
+                    values.append(str(max(record[p])))
+                elif s == 'avg':
+                    values.append(str(self._mean(record[p])))
+            else:
+                values.append(str(sum(record[h])))
+        return values
+
+    def _check_output(self, out):
+        if out:
+            return open(out, 'w')
+        else:
+            return sys.stdout
+
+    def append_parameter(self, parameter):
+        """Add one parameter to parameters list to analyze
+
+        :param str parameter: the value of parameter to add to parameters list
+        """
+        self.parameters.append(parameter)
+
+    def extend_parameters(self, parameters):
+        """Add more parameters to parameters list to analyze
+
+        :param list parameters: a list of parameters to add to parameters list
+        """
+        self.parameters.extend(parameters)
+
+    def write_daily(self, output=None):
+        """Function to write a csv file with a values for each day
+
+        :param str output: the complete path where write a csv file
+        """
+        of = self._check_output(output)
+        header = self._create_header(True)
+        of.write("date,{head}\n".format(head=",".join(header)))
+        oldate = None
+        self.values = self._empty_dict()
+        for forecast in self.dictionary:
+            date = self._str2time(forecast['@to'])
+            interval = self._check_diff_time(forecast)
+            if not oldate:
+                oldate = date.date()
+            elif oldate != date.date():
+                vals = self._write_dict(self.values, header)
+                of.write("{date},{head}\n".format(date=oldate,
+                         head=",".join(vals)))
+                oldate = date.date()
+                self.values = self._empty_dict()
+            if interval in self.accepted_interval:
+                try:
+                    self._fill_dict(forecast['location'])
+                except:
+                    self._fill_dict(forecast)
+        if output:
+            of.close()
+
+    def write_all(self, output=None):
+        """Function to write a csv file with all values of services
+
+        :param str output: the complete path where write a csv file
+        """
+        of = self._check_output(output)
+        header = self._create_header()
+        of.write("fromdate,todate,{head}\n".format(head=",".join(header)))
+        for forecast in self.dictionary:
+            interval = self._check_diff_time(forecast)
+            if interval in self.accepted_interval:
+                self.values = [forecast['@from'], forecast['@to']]
+                try:
+                    self._fill_list(forecast['location'])
+                except:
+                    self._fill_list(forecast)
+                of.write("{data}\n".format(data=",".join(self.values)))
+        if output:
+            of.close()
 
 if __name__ == '__main__':
     print(Connect(Location(location_name='Czech_Republic/Prague/Prague')).read())
