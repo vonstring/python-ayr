@@ -52,12 +52,11 @@ class Location(YrObject):
     def get_hash(self):
         return self.location_name.replace('/', '-')
 
-
 class LocationXYZ(YrObject):
     """Class to use the API of yr.no"""
+
     def __init__(self, x, y, z=0, language=Language()):
         """
-
         :param double x: longitude coordinate
         :param double y: latitude coordinate
         :param double z: altitude (meters above sea level)
@@ -79,7 +78,6 @@ class LocationXYZ(YrObject):
     def get_hash(self):
         """Create an hash with the three coordinates"""
         return "location_{x}_{y}_{z}".format(x=self.x, y=self.y, z=self.z)
-
 
 class Connect(YrObject):
 
@@ -132,4 +130,4 @@ class Cache(YrObject):
             return f.read()
 
 if __name__ == '__main__':
-    print(Connect(Location('Czech_Republic/Prague/Prague')).read())
+    print(Connect(Location(location_name='Czech_Republic/Prague/Prague')).read())

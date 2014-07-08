@@ -23,7 +23,7 @@ class Yr:
             return python
 
     def forecast(self, as_json=False):
-        if self.xyz:
+        if self.location_xyz:
             times = self.dictionary['weatherdata']['product']['time']
         else:
             times = self.dictionary['weatherdata']['forecast']['tabular']['time']
@@ -33,18 +33,19 @@ class Yr:
     def now(self, as_json=False):
         return next(self.forecast(as_json))
 
-    def __init__(self, location_name=None, xyz=None, language_name='en'):
+    def __init__(self, location_name=None, location_xyz=None, language_name='en'):
         self.language_name = language_name
         self.language = Language(self.language_name)
         if location_name:
-            self.xyz = False
             self.location_name = location_name
+            self.location_xyz = None
             self.location = Location(self.location_name, self.language)
-        elif xyz:
-            self.xyz = True
-            self.location = LocationXYZ(xyz[0], xyz[1], xyz[2])
+        elif location_xyz:
+            self.location_name = None
+            self.location_xyz = location_xyz
+            self.location = LocationXYZ(location_xyz[0], location_xyz[1], location_xyz[2])
         else:
-            return YrException("location_name or xyz parameter ha to be set")
+            return YrException("location_name or location_xyz parameter must be set")
         self.connect = Connect(self.location)
         self.xml_source = self.connect.read()
         self.dictionary = self.xml2dict(self.xml_source)
@@ -54,4 +55,4 @@ class Yr:
         }
 
 if __name__ == '__main__':
-    print(Yr('Czech_Republic/Prague/Prague').now(as_json=True))
+    print(Yr(location_name='Czech_Republic/Prague/Prague').now(as_json=True))
