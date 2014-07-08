@@ -33,13 +33,14 @@ class Yr:
     def now(self, as_json=False):
         return next(self.forecast(as_json))
 
-    def __init__(self, location_name=None, location_xyz=None, language_name='en'):
+    def __init__(self, location_name=None, location_xyz=None, forecast_link='forecast', language_name='en'):
         self.language_name = language_name
+        self.forecast_link = forecast_link       
         self.language = Language(self.language_name)
         if location_name:
             self.location_name = location_name
             self.location_xyz = None
-            self.location = Location(self.location_name, self.language)
+            self.location = Location(self.location_name, self.forecast_link, self.language)
         elif location_xyz:
             self.location_name = None
             self.location_xyz = location_xyz

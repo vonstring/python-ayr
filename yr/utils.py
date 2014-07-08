@@ -36,16 +36,18 @@ class Language(YrObject):
 
 class Location(YrObject):
 
-    def __init__(self, location_name, language=Language()):
+    def __init__(self, location_name, forecast_link='forecast', language=Language()):
         self.location_name = location_name
+        self.forecast_link = forecast_link
         self.language = language
         self.url = self.get_url()
         self.hash = self.get_hash()
 
     def get_url(self):
-        url = 'http://www.yr.no/{place}/{location_name}/{forecast}.xml'.format(
+        url = 'http://www.yr.no/{place}/{location_name}/{forecast_link}.xml'.format(
             location_name = urllib.parse.quote(self.location_name),
-            **self.language.dictionary # **self.language.dictionary contain ~> place + forecast
+            forecast_link = urllib.parse.quote(self.forecast_link),
+            **self.language.dictionary # **self.language.dictionary contain ~> place + forecast_link
         )
         return url
 
