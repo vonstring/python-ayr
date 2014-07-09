@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='python-yr',
-      version='1.2.2-dev',
+      version='1.3.0-dev',
       description='Get the forecast from the norwegian wheather service yr.no in python',
       author='wckd @ github, idxxx23 @ github',
       author_email='alexander.l.hansen@gmail.com',
