@@ -96,7 +96,7 @@ class Cache(YrObject):
         mtime = datetime.datetime.fromtimestamp(os.path.getmtime(self.filename))
         now = datetime.datetime.now()
         timeout = datetime.timedelta(minutes=self.timeout)
-        return mtime - now <= timeout
+        return now - mtime <= timeout # thanks for the fix antorweep
 
     def exists(self):
         return os.path.isfile(self.filename)
