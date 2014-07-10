@@ -54,6 +54,8 @@ For more usage examples visit folder [examples](/yr/examples) or project [wiki](
 Pull requests are very welcomed! :-)
 
 #### Changelog
+1.3.1.2 (2014 Jul 10)
+* Improved exception-handling, thanks @mbambas!
 
 1.3.1.1 (2014 Jul 10)
 
