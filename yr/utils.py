@@ -234,6 +234,9 @@ class YrCSV:
         for h in header:
             if h != 'precipitation':
                 p, s = h.split('_')
+                if len(record[p]) == 0:
+                    values.append('')
+                    continue
                 if s == 'min':
                     values.append(str(min(record[p])))
                 elif s == 'max':
