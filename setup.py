@@ -5,11 +5,27 @@ try:
 except ImportError:
     from distutils.core import setup
 
+#try:
+#    from pypandoc import convert
+#    read_md = lambda filename: convert(filename, 'rst')
+#except ImportError:
+#    print("warning: pypandoc module not found, could not convert Markdown to RST")
+#    read_md = lambda filename: open(filename, mode='r').read()
+#long_description = read_md('README.md')
+
+#import pandoc
+#pandoc.PANDOC_PATH = '/usr/bin/pandoc'
+#doc = pandoc.Document()
+#doc.markdown = open('README.md', mode='r').read()
+#long_description = doc.rst
+
+long_description = open('README.md', mode='r').read()
+
 setup(
     name = 'python-yr',
-    version = '1.3.0',
+    version = '1.3.1',
     description = 'Get the forecast from the norwegian wheather service yr.no in python',
-    long_description = 'Get the forecast from the norwegian wheather service yr.no in python',
+    long_description = long_description,
     author = 'Alexander Hansen',
     author_email = 'alexander.l.hansen@gmail.com',
     maintainer = 'GNU Knight',

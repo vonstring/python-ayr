@@ -2,19 +2,17 @@ python-yr
 =================
 Library for the norwegian wheather service yr.no in python.
 
-Pull requests are very welcomed! :-)
-
-### Usage
+#### Usage
 ```python
 from yr.libyr import Yr
 
-weather = Yr('Norge/Telemark/Skien/Skien')
+weather = Yr(location_name='Norge/Telemark/Skien/Skien')
 now = weather.now(as_json=True)
 
 print(now)
 ```
 
-##### This returns
+#### This returns
 ```json
 {
     "@from": "2014-06-04T08:00:00", 
@@ -53,4 +51,11 @@ print(now)
 
 For more usage examples visit folder [examples](/yr/examples) or project [wiki](https://github.com/wckd/python-yr/wiki)
 
-More to come!
+Pull requests are very welcomed! :-)
+
+#### Changelog
+
+1.3.1 (2014 Jul 10)
+
+* Bugfix: caching mechanism in 'is_fresh' function ~> thanks to antorweep
+* Improve examples
