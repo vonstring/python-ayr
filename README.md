@@ -55,6 +55,10 @@ Pull requests are very welcomed! :-)
 
 #### Changelog
 
+1.3.1.1 (2014 Jul 10)
+
+* Bugfix: pypi/pip installer in 'setup.py'
+
 1.3.1 (2014 Jul 10)
 
 * Bugfix: caching mechanism in 'is_fresh' function ~> thanks to antorweep
