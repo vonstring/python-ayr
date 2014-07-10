@@ -221,21 +221,6 @@ class YrCSV:
             else:
                 self.values.append('0')
 
-    def _create_header(self, stats=False):
-        """Create the header of CSV file with the name of parameter, the date
-        is insert later because the header is used to query data"""
-        header = []
-        if stats:
-            for p in self.parameters:
-                if p != 'precipitation':
-                    for s in self.statistics:
-                        header.append("{par}_{stat}".format(par=p, stat=s))
-                else:
-                    header.append(p)
-        else:
-            header = self.parameters
-        return header
-
     def _write_dict(self, record, header):
         """Add the value to the list to write in the CSV file according the
         header
@@ -279,25 +264,41 @@ class YrCSV:
         """
         self.parameters.extend(parameters)
 
-    def write_daily(self, output=None):
-        """Function to write a csv file with a values for each day
+    def create_header(self, stats=False):
+        """Create the header of CSV file with the name of parameter, the date
+        is insert later because the header is used to query data"""
+        header = []
+        if stats:
+            for p in self.parameters:
+                if p != 'precipitation':
+                    for s in self.statistics:
+                        header.append("{par}_{stat}".format(par=p, stat=s))
+                else:
+                    header.append(p)
+        else:
+            header = self.parameters
+        return header
+
+    def return_daily(self):
+        """Function to return a list with a values for each day
 
         :param str output: the complete path where write a csv file
         """
-        of = self._check_output(output)
-        header = self._create_header(True)
-        of.write("date,{head}\n".format(head=",".join(header)))
+        header = self.create_header(True)
         oldate = None
         self.values = self._empty_dict()
+        out_vals = []
         for forecast in self.dictionary:
             date = self._str2time(forecast['@to'])
             interval = self._check_diff_time(forecast)
             if not oldate:
                 oldate = date.date()
             elif oldate != date.date():
-                vals = self._write_dict(self.values, header)
-                of.write("{date},{head}\n".format(date=oldate,
-                         head=",".join(vals)))
+                vals = [oldate.isoformat()]
+                vals.extend(self._write_dict(self.values, header))
+                #of.write("{date},{head}\n".format(date=oldate,
+                         #head=",".join(vals)))
+                out_vals.append(vals)
                 oldate = date.date()
                 self.values = self._empty_dict()
             if interval in self.accepted_interval:
@@ -305,17 +306,11 @@ class YrCSV:
                     self._fill_dict(forecast['location'])
                 except:
                     self._fill_dict(forecast)
-        if output:
-            of.close()
+        return out_vals
 
-    def write_all(self, output=None):
-        """Function to write a csv file with all values of services
-
-        :param str output: the complete path where write a csv file
-        """
-        of = self._check_output(output)
-        header = self._create_header()
-        of.write("fromdate,todate,{head}\n".format(head=",".join(header)))
+    def return_all(self):
+        """Function to return a list with all values of services"""
+        out_vals = []
         for forecast in self.dictionary:
             interval = self._check_diff_time(forecast)
             if interval in self.accepted_interval:
@@ -324,9 +319,28 @@ class YrCSV:
                     self._fill_list(forecast['location'])
                 except:
                     self._fill_list(forecast)
-                of.write("{data}\n".format(data=",".join(self.values)))
-        if output:
-            of.close()
+                out_vals.append(self.values)
+        return out_vals
+
+    def write(self, outputfile, daily=False):
+        """Write the CSV file
+
+        :param str outputfile: the complete path where write a csv file
+        :param bool daily: to choose if call return_all or return_daily function
+        """
+        of = self._check_output(outputfile)
+        if daily:
+            header = self.create_header(True)
+            of.write("date,{head}\n".format(head=",".join(header)))
+            vals = self.return_daily()
+        else:
+            header = self.create_header()
+            of.write("fromdate,todate,{head}\n".format(head=",".join(header)))
+            vals = self.return_all()
+        for val in vals:
+            of.write("{data}\n".format(data=",".join(val)))
+        if outputfile:
+            of.close
 
 if __name__ == '__main__':
     print(Connect(Location(location_name='Czech_Republic/Prague/Prague')).read())

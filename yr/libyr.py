@@ -16,7 +16,7 @@ class Yr:
     def dict2xml(self, dictionary):
         return xmltodict.unparse(dictionary, pretty=True)
 
-    def py2csv(self, outputfile=None, daily=False, stats=['min', 'max', 'avg'],
+    def py2list(self, daily=False, stats=['min', 'max', 'avg'],
                interval=[0, 6], parameters=['precipitation', 'windDirection',
                                             'windSpeed', 'temperature',
                                             'pressure']):
@@ -37,9 +37,31 @@ class Yr:
         data = self.forecast()
         yrcsv = YrCSV(data, parameters, stats, interval)
         if daily:
-            yrcsv.write_daily(outputfile)
+            return yrcsv.return_daily()
         else:
-            yrcsv.write_all(outputfile)
+            return yrcsv.return_all()
+
+    def py2csv(self, outputfile, daily=False, stats=['min', 'max', 'avg'],
+               interval=[0, 6], parameters=['precipitation', 'windDirection',
+                                            'windSpeed', 'temperature',
+                                            'pressure']):
+        """Return CSV file of forecast data
+
+        :param str outputfile: the complete path and name to output csv file
+        :param bool daily: by default (False) it write all forecast records,
+                           True to write one record for each day
+        :param list stats: a list with statistical value to calculate, admited
+                           values are: 'min', 'max', 'avg'.
+                           Used only with daily=True
+        :param list interval: list of forecast interval to use, 0 has be set
+                              everytime as first element, other options are:
+                              3 for the three hours precipitation forecast,
+                              6 for the six hours precipitation forecast
+        :param list parameters: list of parameters to save in the CSV file.....
+        """
+        data = self.forecast()
+        yrcsv = YrCSV(data, parameters, stats, interval)
+        yrcsv.write(outputfile, daily)
 
     def py2result(self, python, as_json=False): # default is return result as dictionary ;)
         if as_json:
