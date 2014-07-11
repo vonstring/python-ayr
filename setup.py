@@ -95,7 +95,7 @@ Pull requests are very welcomed! :-)
 
 setup(
     name = 'python-yr',
-    version = '1.3.1.1',
+    version = '1.3.2',
     description = 'Get the forecast from the norwegian wheather service yr.no in python',
     long_description = long_description,
     author = 'Alexander Hansen',
