@@ -5,93 +5,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-#try:
-#    from pypandoc import convert
-#    read_md = lambda filename: convert(filename, 'rst')
-#except ImportError:
-#    print("warning: pypandoc module not found, could not convert Markdown to RST")
-#    read_md = lambda filename: open(filename, mode='r').read()
-#long_description = read_md('README.md')
-
-#import pandoc
-#pandoc.PANDOC_PATH = '/usr/bin/pandoc'
-#doc = pandoc.Document()
-#doc.markdown = open('README.md', mode='r').read()
-#long_description = doc.rst
-
-#long_description = open('README.md', mode='r').read()
-
-long_description = '''\
-python-yr
-=================
-Library for the norwegian wheather service yr.no in python.
-
-#### Usage
-```python
-from yr.libyr import Yr
-
-weather = Yr(location_name='Norge/Telemark/Skien/Skien')
-now = weather.now(as_json=True)
-
-print(now)
-```
-
-#### This returns
-```json
-{
-    "@from": "2014-06-04T08:00:00", 
-    "@to": "2014-06-04T12:00:00", 
-    "@period": "1", 
-    "symbol": {
-        "@number": "3", 
-        "@numberEx": "3", 
-        "@name": "Partly cloudy", 
-        "@var": "03d"
-    }, 
-    "precipitation": {
-        "@value": "0", 
-        "@minvalue": "0", 
-        "@maxvalue": "0.1"
-    }, 
-    "windDirection": {
-        "@deg": "159.4", 
-        "@code": "SSE", 
-        "@name": "South-southeast"
-    }, 
-    "windSpeed": {
-        "@mps": "1.3", 
-        "@name": "Light air"
-    }, 
-    "temperature": {
-        "@unit": "celsius", 
-        "@value": "13"
-    }, 
-    "pressure": {
-        "@unit": "hPa", 
-        "@value": "1012.1"
-    }
-}
-```
-
-For more usage examples visit folder [examples](/yr/examples) or project [wiki](https://github.com/wckd/python-yr/wiki)
-
-Pull requests are very welcomed! :-)
-
-#### Changelog
-
-1.3.2 (2014 Jul 11)
-
-* Improved exception-handling, thanks @mbambas!
-
-1.3.1.1 (2014 Jul 10)
-
-* Bugfix: pypi/pip installer in 'setup.py'
-
-1.3.1 (2014 Jul 10)
-
-* Bugfix: caching mechanism in 'is_fresh' function ~> thanks to antorweep
-* Improve examples
-'''
+long_description = open('README.md').read()
 
 setup(
     name = 'python-yr',
@@ -109,7 +23,6 @@ setup(
             'examples/*.py',
             'languages/*.json',
             'locations/*.gz',
-            'README.md',
         ]
     },
     classifiers = [
