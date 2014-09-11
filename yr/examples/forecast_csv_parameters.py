@@ -19,6 +19,8 @@ all_parameters = [ # from the api is possible to obtain more info
     'pressure',
 ]
 
-weather.py2csv(parameters=all_parameters) # print to stdout all values
+l = weather.py2list(parameters=all_parameters) # print to stdout all values
+print(l)
 print()
-weather.py2csv(daily=True, parameters=all_parameters) # print to stdout daily values
+l = weather.py2list(daily=True, parameters=all_parameters) # print to stdout daily values
+print(l)
