@@ -46,7 +46,7 @@ class Yr:
             self.location_xyz = location_xyz
             self.location = LocationXYZ(location_xyz[0], location_xyz[1], location_xyz[2])
         else:
-            return YrException("location_name or location_xyz parameter must be set")
+            raise YrException("location_name or location_xyz parameter must be set")
         self.connect = Connect(self.location)
         self.xml_source = self.connect.read()
         self.dictionary = self.xml2dict(self.xml_source)
