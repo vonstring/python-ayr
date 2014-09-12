@@ -55,6 +55,11 @@ Pull requests are very welcomed! :-)
 
 #### Changelog
 
+1.4.0 (2014 Sep 12)
+
+* Add support for yr.no api service ~> thanks to lucadelu
+* Add hourly forecast ~> thanks to antorweep1987
+
 1.3.2 (2014 Jul 11)
 
 * Improved exception-handling, thanks @mbambas!
