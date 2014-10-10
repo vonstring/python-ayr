@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 import sys
 import os.path
 import json # Language
@@ -8,78 +9,121 @@ import datetime # Cache
 import urllib.request # Connect
 import urllib.parse # Location
 
-class YrObject: encoding = 'utf-8'
+class YrObject:
+
+    script_directory = os.path.dirname(os.path.abspath(__file__)) # directory of the script
+    encoding = 'utf-8'
 
 class YrException(Exception):
-    pass
+
+    def __init__(self, message):
+        logging.error(message)
+        raise
 
 class Language(YrObject):
 
-    script_directory = os.path.dirname(os.path.abspath(__file__)) # directory of the script
     directory = 'languages'
+    default_language_name = 'en'
+    extension = 'json'
 
-    def __init__(self, language_name='en'):
+    def __init__(self, language_name=default_language_name):
         self.language_name = language_name
         self.filename = os.path.join(
             self.script_directory,
             self.directory,
-            '{root}.{ext}'.format(root=self.language_name, ext='json') # basename of filename
+            '{language_name}.{extension}'.format(
+                language_name = self.language_name,
+                extension = self.extension,
+            ), # basename of filename
         )
         self.dictionary = self.get_dictionary()
 
     def get_dictionary(self):
-        if os.path.exists(self.filename):
+        try:
+            logging.info('read language dictionary: {}'.format(self.filename))
             with open(self.filename, mode='r', encoding=self.encoding) as f:
                 return json.load(f)
-        else:
-            raise YrException('unavailable language ~> {language_name}'.format(language_name=self.language_name))
+        except Exception as e:
+            raise YrException(e)
 
 class Location(YrObject):
 
-    def __init__(self, location_name, forecast_link='forecast', language=Language()):
+    base_url = 'http://www.yr.no/'
+    default_forecast_link = 'forecast'
+    forecast_links = [default_forecast_link, 'forecast_hour_by_hour']
+    extension = 'xml'
+
+    def __init__(self, location_name, forecast_link=default_forecast_link, language=False):
         self.location_name = location_name
-        self.forecast_link = forecast_link
-        self.language = language
+        self.language = language if isinstance(language, Language) else Language()
+
+        if forecast_link in self.forecast_links: # must be valid forecast_link
+            self.forecast_link = self.language.dictionary[forecast_link]
+        else:
+            self.forecast_link = self.default_forecast_link
+
         self.url = self.get_url()
         self.hash = self.get_hash()
 
     def get_url(self):
-        url = 'http://www.yr.no/{place}/{location_name}/{forecast_link}.xml'.format(
+        return '{base_url}{place}/{location_name}/{forecast_link}.{extension}'.format(
+            base_url = self.base_url,
+            place = self.language.dictionary['place'],
             location_name = urllib.parse.quote(self.location_name),
-            forecast_link = urllib.parse.quote(self.forecast_link),
-            **self.language.dictionary # **self.language.dictionary contain ~> place + forecast_link
+            forecast_link = self.forecast_link,
+            extension = self.extension,
         )
-        return url
 
     def get_hash(self):
-        return self.location_name.replace('/', '-')
+        return '{location_name}.{forecast_link}'.format(
+            location_name=self.location_name.replace('/', '-'),
+            forecast_link=self.forecast_link,
+        )
 
-class LocationXYZ(YrObject):
+class API_Locationforecast(YrObject):
     """Class to use the API of yr.no"""
 
-    def __init__(self, x, y, z=0, language=Language()):
+    base_url = 'http://api.yr.no/weatherapi/locationforecast/1.9/?'
+    forecast_link = 'locationforecast'
+
+    def __init__(self, lat, lon, msl=0, language=False):
+        """
+        :param double lat: latitude coordinate
+        :param double lon: longitude coordinate
+        :param double msl: altitude (meters above sea level)
+        :param language: a Language object
+        """
+        self.coordinates = dict(lat=lat, lon=lon, msl=msl)
+        self.location_name = 'lat={lat};lon={lon};msl={msl}'.format(**self.coordinates)
+        #self.language = language if isinstance(language, Language) else Language()
+        self.url = self.get_url()
+        self.hash = self.get_hash()
+
+    def get_url(self):
+        """Return the url of API service"""
+        return '{base_url}{location_name}'.format(
+            base_url=self.base_url,
+            location_name=self.location_name,
+        )
+
+    def get_hash(self):
+        """Create an hash with the three coordinates"""
+        return '{location_name}.{forecast_link}'.format(
+            location_name=self.location_name,
+            forecast_link=self.forecast_link,
+        )
+
+class LocationXYZ(API_Locationforecast): # ~> Deprecated!!!
+    """Class to use the API of yr.no"""
+
+    def __init__(self, x, y, z=0, language=False):
         """
         :param double x: longitude coordinate
         :param double y: latitude coordinate
         :param double z: altitude (meters above sea level)
         :param language: a Language object
         """
-        self.x = x
-        self.y = y
-        self.z = z
-        self.language = language
-        self.url = self.get_url()
-        self.hash = self.get_hash()
-
-    def get_url(self):
-        """Return the url of API service"""
-        url = "http://api.yr.no/weatherapi/locationforecast/1.9/?lat={y};" \
-              "lon={x};msl={z}".format(x=self.x, y=self.y, z=self.z)
-        return url
-
-    def get_hash(self):
-        """Create an hash with the three coordinates"""
-        return "location_{x}_{y}_{z}".format(x=self.x, y=self.y, z=self.z)
+        super().__init__(y, x, z, language)
 
 class Connect(YrObject):
 
@@ -87,34 +131,43 @@ class Connect(YrObject):
         self.location = location
 
     def read(self):
-        cache = Cache(self.location)
-        if not cache.exists() or not cache.is_fresh():
-            try:
+        try:
+            logging.info('weatherdata request: {}, forecast-link: {}'.format(
+                self.location.location_name,
+                self.location.forecast_link,
+            ))
+            cache = Cache(self.location)
+            if not cache.exists() or not cache.is_fresh():
+                logging.info('read online: {}'.format(self.location.url))
                 response = urllib.request.urlopen(self.location.url)
-            except:
-                raise YrException('unavailable url ~> {url}'.format(url=self.location.url))
-            if response.status != 200:
-                raise YrException('unavailable url ~> {url}'.format(url=self.location.url))
-            weatherdata = response.read().decode(self.encoding)
-            cache.dump(weatherdata)
-        else:
-            weatherdata = cache.load()
-        return weatherdata
+                if response.status != 200:
+                    raise
+                weatherdata = response.read().decode(self.encoding)
+                cache.dump(weatherdata)
+            else:
+                weatherdata = cache.load()
+            return weatherdata
+        except Exception as e:
+            raise YrException(e)
 
 class Cache(YrObject):
 
     directory = tempfile.gettempdir()
-    extension = 'weatherdata.xml'
-    timeout = 30 # cache timeout in minutes
+    extension = 'xml'
+    timeout = 15 # cache timeout in minutes
 
     def __init__(self, location):
         self.location = location
         self.filename = os.path.join(
             self.directory,
-            '{root}.{ext}'.format(root=self.location.hash, ext=self.extension) # basename of filename
+            '{location_hash}.{extension}'.format(
+                location_hash=self.location.hash,
+                extension=self.extension,
+            ), # basename of filename
         )
 
     def dump(self, data):
+        logging.info('write caching: {}'.format(self.filename))
         with open(self.filename, mode='w', encoding=self.encoding) as f:
             f.write(data)
 
@@ -128,8 +181,34 @@ class Cache(YrObject):
         return os.path.isfile(self.filename)
 
     def load(self):
+        logging.info('read from cache: {}'.format(self.filename))
         with open(self.filename, mode='r', encoding=self.encoding) as f:
             return f.read()
 
 if __name__ == '__main__':
-    print(Connect(Location(location_name='Czech_Republic/Prague/Prague')).read())
+    logging.basicConfig(level=logging.DEBUG)
+    logging.info('starting __main__')
+
+    weatherdata = Connect(Location(
+        location_name='Czech_Republic/Prague/Prague',
+        forecast_link='forecast',
+        language=Language(language_name='en'),
+    )).read()
+    #print(weatherdata)
+
+    weatherdata = Connect(Location(
+        location_name='Czech_Republic/Prague/Prague',
+        forecast_link='forecast_hour_by_hour',
+        language=Language(language_name='en'),
+    )).read()
+    #print(weatherdata)
+
+    weatherdata = Connect(API_Locationforecast(
+        50.0596696,
+        14.4656239,
+        11,
+        language=Language(language_name='en'),
+    )).read()
+    #print(weatherdata)
+
+    logging.info('stopping __main__')
