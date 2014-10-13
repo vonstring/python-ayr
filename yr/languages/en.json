@@ -3,5 +3,6 @@
   "place": "place",
   "forecast": "forecast",
   "forecast_hour_by_hour": "forecast_hour_by_hour",
-  "credit": "Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK"
+  "credit": "Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK",
+  "url": "http://www.yr.no/"
 }
