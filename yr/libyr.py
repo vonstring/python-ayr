@@ -6,10 +6,10 @@ import json
 import xmltodict # <~ the only external dependency
 from yr.utils import Connect, Location, API_Locationforecast, Language, YrException
 
-class Yr:
+class Yr(object):
 
-    default_forecast_link = 'forecast'
-    default_language_name = 'en'
+    default_forecast_link = u'forecast'
+    default_language_name = u'en'
 
     def py2json(self, python):
         return json.dumps(python, indent=4)
@@ -28,14 +28,14 @@ class Yr:
 
     def forecast(self, as_json=False):
         if self.coordinates:
-            times = self.dictionary['weatherdata']['product']['time']
+            times = self.dictionary[u'weatherdata'][u'product'][u'time']
         else:
-            times = self.dictionary['weatherdata']['forecast']['tabular']['time']
+            times = self.dictionary[u'weatherdata'][u'forecast'][u'tabular'][u'time']
         for time in times:
             yield self.py2result(time, as_json)
 
     def now(self, as_json=False):
-        return next(self.forecast(as_json))
+        return self.forecast(as_json).next()
 
     def __init__(
             self,
@@ -71,41 +71,41 @@ class Yr:
                 language=self.language,
             )
         else:
-            raise YrException('location_name or location_xyz parameter must be set')
+            raise YrException(u'location_name or location_xyz parameter must be set')
 
         self.connect = Connect(location=self.location)
         self.xml_source = self.connect.read()
         self.dictionary = self.xml2dict(self.xml_source)
-        self.credit = self.language.dictionary['credit']
+        self.credit = self.language.dictionary[u'credit']
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
     logging.basicConfig(level=logging.DEBUG)
-    logging.info('starting __main__')
+    logging.info(u'starting __main__')
 
     weatherdata = Yr(
-        location_name='Czech_Republic/Prague/Prague',
-        forecast_link='forecast',
-        language_name='en',
+        location_name=u'Czech_Republic/Prague/Prague',
+        forecast_link=u'forecast',
+        language_name=u'en',
     ).now(as_json=True)
     #print(weatherdata)
 
     weatherdata = Yr(
-        location_name='Czech_Republic/Prague/Prague',
-        forecast_link='forecast_hour_by_hour',
-        language_name='en',
+        location_name=u'Czech_Republic/Prague/Prague',
+        forecast_link=u'forecast_hour_by_hour',
+        language_name=u'en',
     ).now(as_json=True)
     #print(weatherdata)
 
     weatherdata = Yr(
         location_xyz=(14.4656239,50.0596696,11),
-        language_name='en',
+        language_name=u'en',
     ).now(as_json=True)
     #print(weatherdata)
 
     weatherdata = Yr(
         coordinates=(50.0596696,14.4656239,11),
-        language_name='en',
+        language_name=u'en',
     ).now(as_json=True)
     #print(weatherdata)
 
-    logging.info('stopping __main__')
+    logging.info(u'stopping __main__')

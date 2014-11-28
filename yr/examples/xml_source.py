@@ -2,6 +2,6 @@
 
 from yr.libyr import Yr
 
-weather = Yr(location_name='Norge/Telemark/Skien/Skien')
+weather = Yr(location_name=u'Norge/Telemark/Skien/Skien')
 
-print(weather.xml_source)
+print weather.xml_source
