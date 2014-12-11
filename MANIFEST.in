@@ -1,1 +1,5 @@
-include README.md
+include COPYING.txt
+include README.rst
+include CHANGES.rst
+recursive-include yr/languages *
+recursive-include yr/examples *
