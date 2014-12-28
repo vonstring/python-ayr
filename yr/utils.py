@@ -143,6 +143,7 @@ class Connect(YrObject):
                 if response.status != 200:
                     raise
                 weatherdata = response.read().decode(self.encoding)
+                cache.remove()
                 cache.dump(weatherdata)
             else:
                 weatherdata = cache.load()
@@ -167,7 +168,7 @@ class Cache(YrObject):
         )
 
     def dump(self, data):
-        logging.info('write caching: {}'.format(self.filename))
+        logging.info('writing cachefile: {}'.format(self.filename))
         with open(self.filename, mode='w', encoding=self.encoding) as f:
             f.write(data)
 
@@ -181,12 +182,13 @@ class Cache(YrObject):
         return os.path.isfile(self.filename)
 
     def load(self):
-        logging.info('read from cache: {}'.format(self.filename))
+        logging.info('read from cachefile: {}'.format(self.filename))
         with open(self.filename, mode='r', encoding=self.encoding) as f:
             return f.read()
 
     def remove(self):
         if os.path.isfile(self.filename):
+            logging.info('removing cachefile: {}'.format(self.filename)) 
             os.remove(self.filename)
 
 if __name__ == '__main__':
