@@ -188,9 +188,6 @@ class Cache(YrObject):
     def remove(self):
         if os.path.isfile(self.filename):
             os.remove(self.filename)
-            return True
-        else:
-            return False
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
