@@ -185,6 +185,13 @@ class Cache(YrObject):
         with open(self.filename, mode='r', encoding=self.encoding) as f:
             return f.read()
 
+    def remove(self):
+        if os.path.isfile(self.filename):
+            os.remove(self.filename)
+            return True
+        else:
+            return False
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.info('starting __main__')
