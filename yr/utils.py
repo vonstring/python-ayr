@@ -187,8 +187,8 @@ class Cache(YrObject):
 
     def remove(self):
         if os.path.isfile(self.filename):
-            logging.info('removing cachefile: {}'.format(self.filename)) 
             os.remove(self.filename)
+            logging.info('removed cachefile: {}'.format(self.filename))
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
