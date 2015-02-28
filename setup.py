@@ -25,5 +25,10 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Internet',
     ],
+    package_data={
+        'yr': [
+            'languages/*.json',
+        ],
+    },
     install_requires = ['xmltodict'], # $$solve$$ ~> /usr/lib/python3.4/distutils/dist.py:260: UserWarning: Unknown distribution option: 'install_requires' warnings.warn(msg)
 )
