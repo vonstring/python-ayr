@@ -8,6 +8,7 @@ import tempfile # Cache
 import datetime # Cache
 import urllib.request # Connect
 import urllib.parse # Location
+import xmltodict
 
 class YrObject:
 
@@ -171,11 +172,17 @@ class Cache(YrObject):
         with open(self.filename, mode='w', encoding=self.encoding) as f:
             f.write(data)
 
+    def valid_until_timestamp_from_file(self):
+        xmldata = self.load()
+        d = xmltodict.parse(xmldata)
+        next_update = d['weatherdata']['meta']['nextupdate']
+        valid_until = datetime.datetime.strptime(next_update,"%Y-%m-%dT%H:%M:%S")
+        logging.info('Cache is valid until {}'.format(valid_until))
+        return valid_until
+
     def is_fresh(self):
-        mtime = datetime.datetime.fromtimestamp(os.path.getmtime(self.filename))
-        now = datetime.datetime.now()
-        timeout = datetime.timedelta(minutes=self.timeout)
-        return now - mtime <= timeout # thanks for the fix antorweep
+        logging.info('Now is {}'.format(datetime.datetime.now()))
+        return datetime.datetime.now() <= self.valid_until_timestamp_from_file()
 
     def exists(self):
         return os.path.isfile(self.filename)
