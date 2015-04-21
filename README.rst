@@ -2,21 +2,14 @@
 python-yr
 =========
 
-Library for the norwegian wheather service yr.no_ in python_.
+Library for the norwegian wheather service YR.no_ in Python_.
 
-Pull requests
-=============
+Install (easiest way)
+=====================
 
-Please everyone involved to generate demands and plans (pull requests), so we could set targets for next version 1.5 ;)
+.. code:: bash
 
-Branches
-========
-
-* develop_, the main (default) branch for development on GitHub_
-* master_, branch for the stable release published on PyPi_
-* python2_, branch with support for Python2
-* csv-support_, branch with support for CSV export forecasts
-* ...
+    pip3 install python-yr
 
 Usage
 =====
@@ -71,13 +64,27 @@ This returns
 
 For more usage examples visit folder examples_ or project wiki_
 
-.. _yr.no: http://www.yr.no/
-.. _python: http://www.python.org/
+Pull requests
+=============
+
+Please everyone involved to generate demands and plans (pull requests), so we could set targets for next version 1.5 ;)
+
+Branches
+========
+
+* develop_, the main (default) branch for development on GitHub_
+* master_, branch for the stable release published on PyPi_
+* python2_, branch with support for Python2
+* csv-support_, branch with support for CSV export forecasts
+* ...
+
+.. _YR.no: http://www.yr.no/
+.. _Python: http://www.python.org/
+.. _examples: https://github.com/wckd/python-yr/blob/master/yr/examples
+.. _wiki: https://github.com/wckd/python-yr/wiki
 .. _develop: https://github.com/wckd/python-yr/tree/develop
 .. _GitHub: https://github.com/wckd/python-yr/
 .. _master: https://github.com/wckd/python-yr/tree/master
 .. _PyPi: https://pypi.python.org/pypi/python-yr/
 .. _python2: https://github.com/wckd/python-yr/tree/python2
 .. _csv-support: https://github.com/wckd/python-yr/tree/csv-support
-.. _examples: https://github.com/wckd/python-yr/blob/master/yr/examples
-.. _wiki: https://github.com/wckd/python-yr/wiki
