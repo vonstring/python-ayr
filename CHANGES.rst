@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.4.2 (2015 Apr 21)
+
+* add remove function to Cache
+* add explicit installation of language-specific JSON files to setup ~> thanx to kurisuke_
+* check the freshness of cache based on nextupdate tag in meta ~> thanx to knightsamar_
+
 1.4.1 (2014 Dec 11)
 
 * add logging support
@@ -36,3 +42,5 @@ Changelog
 .. _antorweep1987: https://github.com/antorweep1987
 .. _mbambas: https://github.com/mbambas
 .. _lucadelu: https://github.com/lucadelu
+.. _kurisuke: https://github.com/kurisuke
+.. _knightsamar: https://github.com/knightsamar
