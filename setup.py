@@ -12,8 +12,8 @@ setup(
     long_description = open('README.rst').read() + '\n' + open('CHANGES.rst').read(),
     author = 'Alexander Hansen',
     author_email = 'alexander@alexanderhansen.no',
-    maintainer = 'GNU Knight',
-    maintainer_email = 'idxxx23@gmail.com',
+    maintainer = 'Hugo Shamrock',
+    maintainer_email = 'hugo.shamrock@gmail.com',
     url = 'https://github.com/wckd/python-yr',
     packages = ['yr'],
     classifiers = [ # https://pypi.python.org/pypi?%3Aaction=list_classifiers
