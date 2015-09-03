@@ -7,13 +7,13 @@ except ImportError:
 
 setup(
     name = 'python-yr',
-    version = '1.4.2',
+    version = '1.4.3',
     description = 'Get the forecast from the norwegian wheather service yr.no in python',
     long_description = open('README.rst').read() + '\n' + open('CHANGES.rst').read(),
     author = 'Alexander Hansen',
-    author_email = 'alexander.l.hansen@gmail.com',
-    maintainer = 'GNU Knight',
-    maintainer_email = 'idxxx23@gmail.com',
+    author_email = 'alexander@alexanderhansen.no',
+    maintainer = 'Hugo Shamrock',
+    maintainer_email = 'hugo.shamrock@gmail.com',
     url = 'https://github.com/wckd/python-yr',
     packages = ['yr'],
     classifiers = [ # https://pypi.python.org/pypi?%3Aaction=list_classifiers
