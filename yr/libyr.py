@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 import logging
-import sys
 import json
-import xmltodict # <~ the only external dependency
+import xmltodict  # <~ the only external dependency
 from yr.utils import Connect, Location, API_Locationforecast, Language, YrException
+
 
 class Yr:
 
@@ -20,7 +20,7 @@ class Yr:
     def dict2xml(self, dictionary):
         return xmltodict.unparse(dictionary, pretty=True)
 
-    def py2result(self, python, as_json=False): # default is return result as dictionary ;)
+    def py2result(self, python, as_json=False):  # default is return result as dictionary ;)
         if as_json:
             return self.py2json(python)
         else:
@@ -44,15 +44,15 @@ class Yr:
             location_xyz=None,
             forecast_link=default_forecast_link,
             language_name=default_language_name,
-        ):
-        self.forecast_link = forecast_link       
+    ):
+        self.forecast_link = forecast_link
         self.language_name = language_name
         self.language = Language(language_name=self.language_name)
 
         if location_xyz:
             coordinates = (location_xyz[1], location_xyz[0], location_xyz[2])
             self.location_xyz = location_xyz
-    
+
         if location_name:
             self.location_name = location_name
             self.coordinates = None
@@ -87,25 +87,25 @@ if __name__ == '__main__':
         forecast_link='forecast',
         language_name='en',
     ).now(as_json=True)
-    #print(weatherdata)
+    # print(weatherdata)
 
     weatherdata = Yr(
         location_name='Czech_Republic/Prague/Prague',
         forecast_link='forecast_hour_by_hour',
         language_name='en',
     ).now(as_json=True)
-    #print(weatherdata)
+    # print(weatherdata)
 
     weatherdata = Yr(
-        location_xyz=(14.4656239,50.0596696,11),
+        location_xyz=(14.4656239, 50.0596696, 11),
         language_name='en',
     ).now(as_json=True)
-    #print(weatherdata)
+    # print(weatherdata)
 
     weatherdata = Yr(
-        coordinates=(50.0596696,14.4656239,11),
+        coordinates=(50.0596696, 14.4656239, 11),
         language_name='en',
     ).now(as_json=True)
-    #print(weatherdata)
+    # print(weatherdata)
 
     logging.info('stopping __main__')

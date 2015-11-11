@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 
 import logging
-import sys
 import os.path
-import json # Language
-import tempfile # Cache
-import datetime # Cache
-import urllib.request # Connect
-import urllib.parse # Location
+import json  # Language
+import tempfile  # Cache
+import datetime  # Cache
+import urllib.request  # Connect
+import urllib.parse  # Location
 import xmltodict
-
 
 log = logging.getLogger(__name__)
 
 
 class YrObject:
 
-    script_directory = os.path.dirname(os.path.abspath(__file__)) # directory of the script
+    script_directory = os.path.dirname(os.path.abspath(__file__))  # directory of the script
     encoding = 'utf-8'
+
 
 class YrException(Exception):
 
     def __init__(self, message):
         log.error(message)
         raise
+
 
 class Language(YrObject):
 
@@ -37,9 +37,9 @@ class Language(YrObject):
             self.script_directory,
             self.directory,
             '{language_name}.{extension}'.format(
-                language_name = self.language_name,
-                extension = self.extension,
-            ), # basename of filename
+                language_name=self.language_name,
+                extension=self.extension,
+            ),  # basename of filename
         )
         self.dictionary = self.get_dictionary()
 
@@ -50,6 +50,7 @@ class Language(YrObject):
                 return json.load(f)
         except Exception as e:
             raise YrException(e)
+
 
 class Location(YrObject):
 
@@ -62,7 +63,7 @@ class Location(YrObject):
         self.location_name = location_name
         self.language = language if isinstance(language, Language) else Language()
 
-        if forecast_link in self.forecast_links: # must be valid forecast_link
+        if forecast_link in self.forecast_links:  # must be valid forecast_link
             self.forecast_link = self.language.dictionary[forecast_link]
         else:
             self.forecast_link = self.default_forecast_link
@@ -72,11 +73,11 @@ class Location(YrObject):
 
     def get_url(self):
         return '{base_url}{place}/{location_name}/{forecast_link}.{extension}'.format(
-            base_url = self.base_url,
-            place = self.language.dictionary['place'],
-            location_name = urllib.parse.quote(self.location_name),
-            forecast_link = self.forecast_link,
-            extension = self.extension,
+            base_url=self.base_url,
+            place=self.language.dictionary['place'],
+            location_name=urllib.parse.quote(self.location_name),
+            forecast_link=self.forecast_link,
+            extension=self.extension,
         )
 
     def get_hash(self):
@@ -84,6 +85,7 @@ class Location(YrObject):
             location_name=self.location_name.replace('/', '-'),
             forecast_link=self.forecast_link,
         )
+
 
 class API_Locationforecast(YrObject):
     """Class to use the API of yr.no"""
@@ -100,7 +102,7 @@ class API_Locationforecast(YrObject):
         """
         self.coordinates = dict(lat=lat, lon=lon, msl=msl)
         self.location_name = 'lat={lat};lon={lon};msl={msl}'.format(**self.coordinates)
-        #self.language = language if isinstance(language, Language) else Language()
+        # self.language = language if isinstance(language, Language) else Language()
         self.url = self.get_url()
         self.hash = self.get_hash()
 
@@ -118,7 +120,8 @@ class API_Locationforecast(YrObject):
             forecast_link=self.forecast_link,
         )
 
-class LocationXYZ(API_Locationforecast): # ~> Deprecated!!!
+
+class LocationXYZ(API_Locationforecast):  # ~> Deprecated!!!
     """Class to use the API of yr.no"""
 
     def __init__(self, x, y, z=0, language=False):
@@ -129,6 +132,7 @@ class LocationXYZ(API_Locationforecast): # ~> Deprecated!!!
         :param language: a Language object
         """
         super().__init__(y, x, z, language)
+
 
 class Connect(YrObject):
 
@@ -155,11 +159,12 @@ class Connect(YrObject):
         except Exception as e:
             raise YrException(e)
 
+
 class Cache(YrObject):
 
     directory = tempfile.gettempdir()
     extension = 'xml'
-    timeout = 15 # cache timeout in minutes
+    timeout = 15  # cache timeout in minutes
 
     def __init__(self, location):
         self.location = location
@@ -168,7 +173,7 @@ class Cache(YrObject):
             '{location_hash}.{extension}'.format(
                 location_hash=self.location.hash,
                 extension=self.extension,
-            ), # basename of filename
+            ),  # basename of filename
         )
 
     def dump(self, data):
@@ -180,7 +185,7 @@ class Cache(YrObject):
         xmldata = self.load()
         d = xmltodict.parse(xmldata)
         next_update = d['weatherdata']['meta']['nextupdate']
-        valid_until = datetime.datetime.strptime(next_update,"%Y-%m-%dT%H:%M:%S")
+        valid_until = datetime.datetime.strptime(next_update, "%Y-%m-%dT%H:%M:%S")
         log.info('Cache is valid until {}'.format(valid_until))
         return valid_until
 
@@ -210,14 +215,14 @@ if __name__ == '__main__':
         forecast_link='forecast',
         language=Language(language_name='en'),
     )).read()
-    #print(weatherdata)
+    # print(weatherdata)
 
     weatherdata = Connect(Location(
         location_name='Czech_Republic/Prague/Prague',
         forecast_link='forecast_hour_by_hour',
         language=Language(language_name='en'),
     )).read()
-    #print(weatherdata)
+    # print(weatherdata)
 
     weatherdata = Connect(API_Locationforecast(
         50.0596696,
@@ -225,6 +230,6 @@ if __name__ == '__main__':
         11,
         language=Language(language_name='en'),
     )).read()
-    #print(weatherdata)
+    # print(weatherdata)
 
     logging.info('stopping __main__')
