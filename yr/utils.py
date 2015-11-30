@@ -10,6 +10,10 @@ import urllib.request # Connect
 import urllib.parse # Location
 import xmltodict
 
+
+log = logging.getLogger(__name__)
+
+
 class YrObject:
 
     script_directory = os.path.dirname(os.path.abspath(__file__)) # directory of the script
@@ -18,7 +22,7 @@ class YrObject:
 class YrException(Exception):
 
     def __init__(self, message):
-        logging.error(message)
+        log.error(message)
         raise
 
 class Language(YrObject):
@@ -41,7 +45,7 @@ class Language(YrObject):
 
     def get_dictionary(self):
         try:
-            logging.info('read language dictionary: {}'.format(self.filename))
+            log.info('read language dictionary: {}'.format(self.filename))
             with open(self.filename, mode='r', encoding=self.encoding) as f:
                 return json.load(f)
         except Exception as e:
@@ -133,13 +137,13 @@ class Connect(YrObject):
 
     def read(self):
         try:
-            logging.info('weatherdata request: {}, forecast-link: {}'.format(
+            log.info('weatherdata request: {}, forecast-link: {}'.format(
                 self.location.location_name,
                 self.location.forecast_link,
             ))
             cache = Cache(self.location)
             if not cache.exists() or not cache.is_fresh():
-                logging.info('read online: {}'.format(self.location.url))
+                log.info('read online: {}'.format(self.location.url))
                 response = urllib.request.urlopen(self.location.url)
                 if response.status != 200:
                     raise
@@ -168,7 +172,7 @@ class Cache(YrObject):
         )
 
     def dump(self, data):
-        logging.info('writing cachefile: {}'.format(self.filename))
+        log.info('writing cachefile: {}'.format(self.filename))
         with open(self.filename, mode='w', encoding=self.encoding) as f:
             f.write(data)
 
@@ -177,25 +181,25 @@ class Cache(YrObject):
         d = xmltodict.parse(xmldata)
         next_update = d['weatherdata']['meta']['nextupdate']
         valid_until = datetime.datetime.strptime(next_update,"%Y-%m-%dT%H:%M:%S")
-        logging.info('Cache is valid until {}'.format(valid_until))
+        log.info('Cache is valid until {}'.format(valid_until))
         return valid_until
 
     def is_fresh(self):
-        logging.info('Now is {}'.format(datetime.datetime.now()))
+        log.info('Now is {}'.format(datetime.datetime.now()))
         return datetime.datetime.now() <= self.valid_until_timestamp_from_file()
 
     def exists(self):
         return os.path.isfile(self.filename)
 
     def load(self):
-        logging.info('read from cachefile: {}'.format(self.filename))
+        log.info('read from cachefile: {}'.format(self.filename))
         with open(self.filename, mode='r', encoding=self.encoding) as f:
             return f.read()
 
     def remove(self):
         if os.path.isfile(self.filename):
             os.remove(self.filename)
-            logging.info('removed cachefile: {}'.format(self.filename))
+            log.info('removed cachefile: {}'.format(self.filename))
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
