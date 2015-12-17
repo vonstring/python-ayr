@@ -108,4 +108,10 @@ if __name__ == '__main__':
     ).now(as_json=True)
     # print(weatherdata)
 
+    weatherdata = Yr(
+        coordinates=(63.4066631, 10.4426724, 10),
+        language_name='en'
+    ).now(as_json=True)
+    # print(weatherdata)
+
     logging.info('stopping __main__')

@@ -184,8 +184,21 @@ class Cache(YrObject):
     def valid_until_timestamp_from_file(self):
         xmldata = self.load()
         d = xmltodict.parse(xmldata)
-        next_update = d['weatherdata']['meta']['nextupdate']
-        valid_until = datetime.datetime.strptime(next_update, "%Y-%m-%dT%H:%M:%S")
+        # hotfix API_Locationforecast ++ @nextrun >>>
+        meta = d['weatherdata']['meta']
+        if isinstance(self.location, API_Locationforecast):
+            if isinstance(meta['model'], dict):
+                next_update = meta['model']['@nextrun']
+            elif isinstance(meta['model'], list):
+                next_update = meta['model'][0]['@nextrun']
+            else:
+                return False
+            date_format = '%Y-%m-%dT%H:%M:%SZ'
+        else:
+            next_update = meta['nextupdate']
+            date_format = '%Y-%m-%dT%H:%M:%S'
+        valid_until = datetime.datetime.strptime(next_update, date_format)
+        # hotfix API_Locationforecast ++ @nextrun <<<
         log.info('Cache is valid until {}'.format(valid_until))
         return valid_until
 
