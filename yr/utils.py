@@ -88,6 +88,7 @@ class Location(YrObject):
 
 
 class API_Locationforecast(YrObject):
+
     """Class to use the API of yr.no"""
 
     base_url = 'http://api.yr.no/weatherapi/locationforecast/1.9/?'
@@ -122,6 +123,7 @@ class API_Locationforecast(YrObject):
 
 
 class LocationXYZ(API_Locationforecast):  # ~> Deprecated!!!
+
     """Class to use the API of yr.no"""
 
     def __init__(self, x, y, z=0, language=False):
