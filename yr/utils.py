@@ -186,7 +186,6 @@ class Cache(YrObject):
     def valid_until_timestamp_from_file(self):
         xmldata = self.load()
         d = xmltodict.parse(xmldata)
-        # hotfix API_Locationforecast ++ @nextrun >>>
         meta = d['weatherdata']['meta']
         if isinstance(self.location, API_Locationforecast):
             if isinstance(meta['model'], dict):

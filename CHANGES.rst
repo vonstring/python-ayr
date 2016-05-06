@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.4.4 (2016 May 06)
+
+* switched API_Locationforecast to https://api.met.no - fixing #34
+
 1.4.2 (2015 Apr 21)
 
 * add remove function to Cache
