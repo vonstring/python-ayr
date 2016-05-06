@@ -89,9 +89,9 @@ class Location(YrObject):
 
 class API_Locationforecast(YrObject):
 
-    """Class to use the API of yr.no"""
+    """Class to use the API of api.met.no"""
 
-    base_url = 'http://api.yr.no/weatherapi/locationforecast/1.9/?'
+    base_url = 'https://api.met.no/weatherapi/locationforecast/1.9/?'
     forecast_link = 'locationforecast'
 
     def __init__(self, lat, lon, msl=0, language=False):
