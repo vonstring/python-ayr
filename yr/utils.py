@@ -194,11 +194,15 @@ class Cache(YrObject):
                 next_update = meta['model'][0]['@nextrun']
             else:
                 return False
-            date_format = '%Y-%m-%dT%H:%M:%SZ'
+            next_update = next_update.replace("Z", " +0000")
+            date_format = "%Y-%m-%dT%H:%M:%S %z"
+            # Read the UTC timestamp, convert to local time and remove the timezone information.
+            valid_until = datetime.datetime.strptime(next_update,date_format)
+            valid_until = valid_until.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None).replace(tzinfo=None)
         else:
             next_update = meta['nextupdate']
             date_format = '%Y-%m-%dT%H:%M:%S'
-        valid_until = datetime.datetime.strptime(next_update, date_format)
+            valid_until = datetime.datetime.strptime(next_update, date_format)
         # hotfix API_Locationforecast ++ @nextrun <<<
         log.info('Cache is valid until {}'.format(valid_until))
         return valid_until
