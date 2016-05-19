@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.4.5 (2016 May 19)
+
+* Parse the 'nextrun' field from the cache file as UTC time (API_Locationforecast)
+
 1.4.4 (2016 May 06)
 
 * switched API_Locationforecast to https://api.met.no - fixing #34
