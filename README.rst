@@ -2,7 +2,7 @@
 python-yr
 =========
 
-Library for the norwegian wheather service YR.no_ in Python_.
+Library for the norwegian weather service YR.no_ in Python_.
 
 Install (easiest way)
 =====================
