@@ -1,5 +1,5 @@
 =========
-python-yr
+python-ayr
 =========
 
 Asynchronous library for the norwegian weather service YR.no_ in Python_. Forked from python-yr_ by wkcd_. 
