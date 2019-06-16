@@ -3,8 +3,8 @@
 import logging
 import json
 import xmltodict  # <~ the only external dependency
-from yr.utils import Connect, Location, API_Locationforecast, Language, YrException
-
+from ayr.utils import Connect, Location, API_Locationforecast, Language, YrException
+import asyncio
 
 class Yr:
 
@@ -26,16 +26,17 @@ class Yr:
         else:
             return python
 
-    def forecast(self, as_json=False):
+    async def forecast(self, as_json=False):
+        data = await self.data()
         if self.coordinates:
-            times = self.dictionary['weatherdata']['product']['time']
+            times = data['weatherdata']['product']['time']
         else:
-            times = self.dictionary['weatherdata']['forecast']['tabular']['time']
-        for time in times:
-            yield self.py2result(time, as_json)
+            times = data['weatherdata']['forecast']['tabular']['time']
+        return [self.py2result(time, as_json) for time in times]
 
-    def now(self, as_json=False):
-        return next(self.forecast(as_json))
+    async def now(self, as_json=False):
+        forecast = await self.forecast(as_json)
+        return forecast[0]
 
     def __init__(
             self,
@@ -84,44 +85,54 @@ class Yr:
             raise YrException('location_name or location_xyz parameter must be set')
 
         self.connect = Connect(location=self.location)
-        self.xml_source = self.connect.read()
-        self.dictionary = self.xml2dict(self.xml_source)
+        self.xml_source = None
+        self.dictionary = None
         self.credit = self.language.dictionary['credit']
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    async def data(self):
+        if self.dictionary is None:
+            self.xml_source = await self.connect.read()
+            self.dictionary = self.xml2dict(self.xml_source)
+        return self.dictionary
+
+async def main():
     logging.info('starting __main__')
 
-    weatherdata = Yr(
+    weatherdata = await Yr(
         location_name='Czech_Republic/Prague/Prague',
         forecast_link='forecast',
         language_name='en',
     ).now(as_json=True)
     # print(weatherdata)
 
-    weatherdata = Yr(
+    weatherdata = await Yr(
         location_name='Czech_Republic/Prague/Prague',
         forecast_link='forecast_hour_by_hour',
         language_name='en',
     ).now(as_json=True)
     # print(weatherdata)
 
-    weatherdata = Yr(
+    weatherdata = await Yr(
         location_xyz=(14.4656239, 50.0596696, 11),
         language_name='en',
     ).now(as_json=True)
     # print(weatherdata)
 
-    weatherdata = Yr(
+    weatherdata = await Yr(
         coordinates=(50.0596696, 14.4656239, 11),
         language_name='en',
     ).now(as_json=True)
     # print(weatherdata)
 
-    weatherdata = Yr(
+    weatherdata = await Yr(
         coordinates=(63.4066631, 10.4426724, 10),
         language_name='en'
     ).now(as_json=True)
     # print(weatherdata)
 
     logging.info('stopping __main__')
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())

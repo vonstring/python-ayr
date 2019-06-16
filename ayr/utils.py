@@ -5,9 +5,9 @@ import os.path
 import json  # Language
 import tempfile  # Cache
 import datetime  # Cache
-import urllib.request  # Connect
 import urllib.parse  # Location
 import xmltodict
+import aiohttp
 
 log = logging.getLogger(__name__)
 
@@ -141,7 +141,7 @@ class Connect(YrObject):
     def __init__(self, location):
         self.location = location
 
-    def read(self):
+    async def read(self):
         try:
             log.info('weatherdata request: {}, forecast-link: {}'.format(
                 self.location.location_name,
@@ -150,10 +150,11 @@ class Connect(YrObject):
             cache = Cache(self.location)
             if not cache.exists() or not cache.is_fresh():
                 log.info('read online: {}'.format(self.location.url))
-                response = urllib.request.urlopen(self.location.url)
-                if response.status != 200:
-                    raise
-                weatherdata = response.read().decode(self.encoding)
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(self.location.url) as response:
+                        if response.status != 200:
+                            raise
+                        weatherdata = await response.text()
                 cache.dump(weatherdata)
             else:
                 weatherdata = cache.load()

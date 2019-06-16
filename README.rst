@@ -2,24 +2,17 @@
 python-yr
 =========
 
-Library for the norwegian weather service YR.no_ in Python_.
-
-Install (easiest way)
-=====================
-
-.. code:: bash
-
-    pip3 install python-yr
+Asynchronous library for the norwegian weather service YR.no_ in Python_. Forked from python-yr_ by wkcd_. 
 
 Usage
 =====
 
 .. code:: python
 
-    from yr.libyr import Yr
+    from ayr.libayr import Yr
 
     weather = Yr(location_name='Norge/Telemark/Skien/Skien')
-    now = weather.now(as_json=True)
+    now = await weather.now(as_json=True)
 
     print(now)
 
@@ -62,29 +55,8 @@ This returns
         }
     }
 
-For more usage examples visit folder examples_ or project wiki_
-
-Pull requests
-=============
-
-Please everyone involved to generate demands and plans (pull requests), so we could set targets for next version 1.5 ;)
-
-Branches
-========
-
-* develop_, the main (default) branch for development on GitHub_
-* master_, branch for the stable release published on PyPi_
-* python2_, branch with support for Python2
-* csv-support_, branch with support for CSV export forecasts
-* ...
 
 .. _YR.no: http://www.yr.no/
 .. _Python: http://www.python.org/
-.. _examples: https://github.com/wckd/python-yr/blob/master/yr/examples
-.. _wiki: https://github.com/wckd/python-yr/wiki
-.. _develop: https://github.com/wckd/python-yr/tree/develop
-.. _GitHub: https://github.com/wckd/python-yr/
-.. _master: https://github.com/wckd/python-yr/tree/master
-.. _PyPi: https://pypi.python.org/pypi/python-yr/
-.. _python2: https://github.com/wckd/python-yr/tree/python2
-.. _csv-support: https://github.com/wckd/python-yr/tree/csv-support
+.. _python-yr: https://github.com/wckd/python-yr/
+.. -wkcd: https://github.com/wckd/python-yr/
